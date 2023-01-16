@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>Number of elements: <span id="number-of-elements"></span></p>
+    <div id="time">
+        <p>Time(ms) of JS execution to insert one by one: <span id="time-value-one-by-one"></span></p>
+        <p>Time(ms) of JS execution insert all together: <span id="time-value-all-together"></span></p>
+
+    </div>
+    <div id="root-one-by-one"></div>
+    <div id="root-all-together"></div>
+</body>
+
+</html>
+
+
+<script>
+    const NUMBER_OF_CHILDREN = 100;
+
+    const TIME_AFTER_WHICH_FIRST_SET_OF_ELEMENTS_DEFINITELY_RENDERED = 4000;
+
+    document.getElementById("number-of-elements").innerText = NUMBER_OF_CHILDREN;
+
+    const imageForNetworkCacheFilling = getImageElement();
+    document.body.appendChild(imageForNetworkCacheFilling);
+
+    setTimeout(() => {
+        insertChildrenOneByOne();
+
+        /* We want to see functions execution separately in Performance tab, so we give some time for elements to be rendered. */
+        setTimeout(() => {
+            document.getElementById("root-one-by-one").innerHTML = '';
+
+            /* We want to see functions execution separately in Performance tab, so we give some time for elements to be rendered. */
+            setTimeout(() => {
+                insertChildrenAllTogether();
+            }, TIME_AFTER_WHICH_FIRST_SET_OF_ELEMENTS_DEFINITELY_RENDERED);
+        }, 4000);
+    }, 1000);
+
+    function insertChildrenOneByOne() {
+        const root = document.getElementById("root-one-by-one");
+
+        const startTime = Date.now();
+
+        for (let i = 0; i < NUMBER_OF_CHILDREN; i++) {
+            const child = getChildOfRootParagraphParagraphWithImage(i);
+            root.appendChild(child);
+        }
+
+        const endTime = Date.now();
+
+        document.getElementById("time-value-one-by-one").innerText = endTime - startTime;
+    }
+
+    function insertChildrenAllTogether() {
+        const root = document.getElementById("root-all-together");
+        const allChildren = document.createDocumentFragment();
+
+        const startTime = Date.now();
+
+        for (let i = 0; i < NUMBER_OF_CHILDREN; i++) {
+            const child = getChildOfRootParagraphParagraphWithImage(i);
+            allChildren.appendChild(child);
+        }
+
+        root.appendChild(allChildren);
+
+        const endTime = Date.now();
+
+        document.getElementById("time-value-all-together").innerText = endTime - startTime;
+    }
+
+    function getChildOfRootParagraph() {
+        return getTextElement();
+    }
+
+    function getChildOfRootParagraphParagraphWithImage() {
+        const child = document.createElement("div");
+
+        child.appendChild(getTextElement());
+        child.appendChild(getImageElement())
+
+        return child;
+    }
+
+    function getTextElement() {
+        const text = document.createElement("p");
+        text.innerText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing....";
+
+        return text;
+    }
+
+
+    function getImageElement() {
+        const image = document.createElement("img");
+        image.src = './placeimg_400_400_animals.jpg';
+        image.width = 200;
+        image.height = 200;
+
+        return image;
+    }
+</script>
